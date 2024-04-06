@@ -1,57 +1,30 @@
 import os
 import customtkinter as ctk
+import json
+from pathlib import Path
 
-#ctk.set_appearance_mode("system")
-#ctk.set_default_color_theme("blue")
+ctk.set_appearance_mode("system")
+ctk.set_default_color_theme("blue")
+
+with open(os.path.join(Path(__file__).parent.absolute(), "extensions.json"), "r") as file:
+    extensions = json.load(file)
 
 class customCheckboxFrame(ctk.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, master, values):
+        super().__init__(master, fg_color="transparent")
+        self.checkboxes = []
+        self.filetypes = values
 
-        self.checkbox_c = ctk.CTkCheckBox(self, text=".c")
-        self.checkbox_c.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="w")
-        self.checkbox_txt = ctk.CTkCheckBox(self, text=".txt")
-        self.checkbox_txt.grid(row=0, column=1, padx=10, pady=(10, 0), sticky="w")
-
-        self.checkbox_h = ctk.CTkCheckBox(self, text=".h")
-        self.checkbox_h.grid(row=1, column=0, padx=10, pady=(10, 0), sticky="w")
-        self.checkbox_md = ctk.CTkCheckBox(self, text=".md")
-        self.checkbox_md.grid(row=1, column=1, padx=10, pady=(10, 0), sticky="w")
-
-        self.checkbox_py = ctk.CTkCheckBox(self, text=".py")
-        self.checkbox_py.grid(row=2, column=0, padx=10, pady=(10, 0), sticky="w")
-        self.checkbox_java = ctk.CTkCheckBox(self, text=".java")
-        self.checkbox_java.grid(row=2, column=1, padx=10, pady=(10, 0), sticky="w")
-
-        self.checkbox_cpp = ctk.CTkCheckBox(self, text=".cpp")
-        self.checkbox_cpp.grid(row=3, column=0, padx=10, pady=(10, 0), sticky="w")
-        self.checkbox_cs = ctk.CTkCheckBox(self, text=".cs")
-        self.checkbox_cs.grid(row=3, column=1, padx=10, pady=(10, 0), sticky="w")
-        
+        for i, filetype in enumerate(values):
+            checkbox = ctk.CTkCheckBox(self, text=f".{filetype}")
+            checkbox.grid(row=i//2, column=i%2, padx=10, pady=(10, 0), sticky="w")
+            self.checkboxes.append(checkbox)
 
     def get(self):
         checked_checkboxes = []
-
-        if self.checkbox_c.get() == 1:
-            checked_checkboxes.append("c")
-        if self.checkbox_txt.get() == 1:
-            checked_checkboxes.append("txt")
-
-        if self.checkbox_h.get() == 1:
-            checked_checkboxes.append("h")
-        if self.checkbox_md.get() == 1:
-            checked_checkboxes.append("md")
-
-        if self.checkbox_py.get() == 1:
-            checked_checkboxes.append("py")
-        if self.checkbox_java.get() == 1:
-            checked_checkboxes.append("java")
-
-        if self.checkbox_cpp.get() == 1:
-            checked_checkboxes.append("cpp")
-        if self.checkbox_cs.get() == 1:
-            checked_checkboxes.append("cs")
-        
+        for checkbox in self.checkboxes:
+            if checkbox.get() == 1:
+                checked_checkboxes.append(checkbox.cget("text")[1:])
         return checked_checkboxes
     
 
@@ -61,24 +34,24 @@ class App(ctk.CTk):
         self.project_directory = None
 
         self.title("Project line counter")
-        self.geometry("600x450")
+        self.geometry("800x550")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        self.checkbox_frame = customCheckboxFrame(self)
-        self.checkbox_frame.grid(row=0, column=1, padx=10, pady=(10, 0), sticky="nes")
-
         self.output_frame = ctk.CTkFrame(self)
         self.output_frame.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nws")
-
+        self.button_set_project_directory = ctk.CTkButton(self.output_frame, text="Change project directory", command=self.set_project_directory)
+        self.button_set_project_directory.grid(row=0, column=0, padx=10, pady=10, sticky="esw")
         self.project_path_label = ctk.CTkLabel(self.output_frame, text="Current project: ")
-        self.project_path_label.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="w")
+        self.project_path_label.grid(row=1, column=0, padx=10, pady=(10, 0), sticky="w")
         self.line_count_label = ctk.CTkLabel(self.output_frame, text="Line count: ")
-        self.line_count_label.grid(row=1, column=0, padx=10, pady=(10, 0), sticky="w")
+        self.line_count_label.grid(row=2, column=0, padx=10, pady=(10, 0), sticky="w")
 
-        self.button_set_project_directory = ctk.CTkButton(self, text="Project directory", command=self.set_project_directory)
-        self.button_set_project_directory.grid(row=3, column=0, padx=10, pady=10, sticky="w")
-        self.button_count_project_lines = ctk.CTkButton(self, text="Count project lines", command=self.count_project)
+        self.selection_frame = ctk.CTkFrame(self)
+        self.selection_frame.grid(row=0, column=1, padx=10, pady=(10, 0), sticky="nes")
+        self.checkbox_frame = customCheckboxFrame(self.selection_frame, values=extensions)
+        self.checkbox_frame.grid(row=0, column=1, padx=10, pady=(10, 0), sticky="nes")
+        self.button_count_project_lines = ctk.CTkButton(self.selection_frame, text="Count project lines", command=self.count_project)
         self.button_count_project_lines.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
 
         
@@ -90,7 +63,7 @@ class App(ctk.CTk):
         if not path == "":
             self.project_directory = path
             print(self.project_directory)
-            self.project_path_label.configure(text=self.project_directory)
+            self.project_path_label.configure(text=f"Current project: {self.project_directory}")
 
     def count_project(self):
         if self.project_directory in [None, ""]:
