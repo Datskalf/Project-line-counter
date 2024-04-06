@@ -1,9 +1,8 @@
 import os
-from pathlib import Path
 import customtkinter as ctk
 
-ctk.set_appearance_mode("system")
-ctk.set_default_color_theme("blue")
+#ctk.set_appearance_mode("system")
+#ctk.set_default_color_theme("blue")
 
 class customCheckboxFrame(ctk.CTkFrame):
     def __init__(self, master):
