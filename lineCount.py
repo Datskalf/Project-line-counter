@@ -39,7 +39,7 @@ class App(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         self.output_frame = ctk.CTkFrame(self)
-        self.output_frame.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nws")
+        self.output_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nws")
         self.button_set_project_directory = ctk.CTkButton(self.output_frame, text="Change project directory", command=self.set_project_directory)
         self.button_set_project_directory.grid(row=0, column=0, padx=10, pady=10, sticky="esw")
         self.project_path_label = ctk.CTkLabel(self.output_frame, text="Current project: ")
@@ -48,11 +48,11 @@ class App(ctk.CTk):
         self.line_count_label.grid(row=2, column=0, padx=10, pady=(10, 0), sticky="w")
 
         self.selection_frame = ctk.CTkFrame(self)
-        self.selection_frame.grid(row=0, column=1, padx=10, pady=(10, 0), sticky="nes")
+        self.selection_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nes")
         self.checkbox_frame = customCheckboxFrame(self.selection_frame, values=extensions)
         self.checkbox_frame.grid(row=0, column=1, padx=10, pady=(10, 0), sticky="nes")
         self.button_count_project_lines = ctk.CTkButton(self.selection_frame, text="Count project lines", command=self.count_project)
-        self.button_count_project_lines.grid(row=3, column=1, padx=10, pady=10, sticky="ew")
+        self.button_count_project_lines.grid(row=3, column=1, padx=10, pady=10, sticky="esw")
 
         
 
