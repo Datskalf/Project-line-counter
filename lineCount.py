@@ -50,9 +50,9 @@ class App(ctk.CTk):
         self.selection_frame = ctk.CTkFrame(self)
         self.selection_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nes")
         self.checkbox_frame = customCheckboxFrame(self.selection_frame, values=extensions)
-        self.checkbox_frame.grid(row=0, column=1, padx=10, pady=(10, 0), sticky="nes")
+        self.checkbox_frame.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nes")
         self.button_count_project_lines = ctk.CTkButton(self.selection_frame, text="Count project lines", command=self.count_project)
-        self.button_count_project_lines.grid(row=3, column=1, padx=10, pady=10, sticky="esw")
+        self.button_count_project_lines.grid(row=1, column=0, padx=10, pady=10, sticky="esw")
 
         
 
