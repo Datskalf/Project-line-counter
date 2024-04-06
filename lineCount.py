@@ -7,7 +7,7 @@ ctk.set_appearance_mode("system")
 ctk.set_default_color_theme("blue")
 
 with open(os.path.join(Path(__file__).parent.absolute(), "extensions.json"), "r") as file:
-    extensions = json.load(file)
+    extensions = sorted(json.load(file))
 
 class customCheckboxFrame(ctk.CTkFrame):
     def __init__(self, master, values):
