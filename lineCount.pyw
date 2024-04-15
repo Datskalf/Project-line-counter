@@ -56,7 +56,9 @@ class App(ctk.CTk):
 
         
 
-
+    def get_allowed_extensions(self) -> list[str]:
+        return self.checkbox_frame.get()
+        ...
 
     def set_project_directory(self):
         path = ctk.filedialog.askdirectory()
@@ -70,17 +72,24 @@ class App(ctk.CTk):
             return 0
         allowed_extensions = self.checkbox_frame.get()
         print(f"Extensions: {allowed_extensions}")
-        os.chdir(self.project_directory)
-        total_lines = 0
-        for file in os.listdir():
-            if not os.path.isfile(file):
-                continue
-            if file.split(".")[-1] not in allowed_extensions:
-                continue
-            total_lines += self.getFileLineCount(file)
-        
+        total_lines = self.count_directory(self.project_directory, self.get_allowed_extensions())
+
         print(f"Line count: {total_lines}")
         self.line_count_label.configure(text=f"Line count: {total_lines}")
+
+    def count_directory(self, path: str, allowed_extensions: list[str]) -> int:
+        directory_total = 0
+        for file in os.listdir(path=path):
+            if file.startswith("."):
+                continue
+            if os.path.isfile(os.path.join(path, file)):
+                if file.split(".")[-1] not in allowed_extensions:
+                    continue
+                directory_total += self.getFileLineCount(os.path.join(path, file))
+            elif os.path.isdir(os.path.join(path, file)):
+                directory_total += self.count_directory(os.path.join(path, file), allowed_extensions)
+        return directory_total
+
 
     def getFileLineCount(self, filepath: str) -> int:
         try:
