@@ -7,21 +7,21 @@ ctk.set_appearance_mode("system")
 ctk.set_default_color_theme("blue")
 
 with open(os.path.join(Path(__file__).parent.absolute(), "extensions.json"), "r") as file:
-    extensions = sorted(json.load(file))
+    extensions: list[str] = sorted(json.load(file))
 
 class customCheckboxFrame(ctk.CTkFrame):
-    def __init__(self, master, values):
+    def __init__(self, master, values: list[str], colCount: int):
         super().__init__(master, fg_color="transparent")
-        self.checkboxes = []
-        self.filetypes = values
+        self.checkboxes: list[ctk.CTkCheckBox] = []
+        self.filetypes: list[str] = values
 
         for i, filetype in enumerate(values):
             checkbox = ctk.CTkCheckBox(self, text=f".{filetype}")
-            checkbox.grid(row=i//2, column=i%2, padx=10, pady=(10, 0), sticky="w")
+            checkbox.grid(row=i//colCount, column=i%colCount, padx=10, pady=(10, 0), sticky="w")
             self.checkboxes.append(checkbox)
 
-    def get(self):
-        checked_checkboxes = []
+    def get(self) -> list[str]:
+        checked_checkboxes: list[str] = []
         for checkbox in self.checkboxes:
             if checkbox.get() == 1:
                 checked_checkboxes.append(checkbox.cget("text")[1:])
@@ -31,7 +31,7 @@ class customCheckboxFrame(ctk.CTkFrame):
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.project_directory = None
+        self.project_directory: str | None = None
 
         self.title("Project line counter")
         self.geometry("800x550")
@@ -49,7 +49,7 @@ class App(ctk.CTk):
 
         self.selection_frame = ctk.CTkFrame(self)
         self.selection_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nes")
-        self.checkbox_frame = customCheckboxFrame(self.selection_frame, values=extensions)
+        self.checkbox_frame = customCheckboxFrame(self.selection_frame, values=extensions, colCount=4)
         self.checkbox_frame.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nes")
         self.button_count_project_lines = ctk.CTkButton(self.selection_frame, text="Count project lines", command=self.count_project)
         self.button_count_project_lines.grid(row=1, column=0, padx=10, pady=10, sticky="esw")
@@ -58,16 +58,17 @@ class App(ctk.CTk):
 
     def get_allowed_extensions(self) -> list[str]:
         return self.checkbox_frame.get()
-        ...
 
     def set_project_directory(self):
         path = ctk.filedialog.askdirectory()
-        if not path == "":
-            self.project_directory = path
-            print(self.project_directory)
-            self.project_path_label.configure(text=f"Current project: {self.project_directory}")
+        if len(path) == 0:
+            return
+        
+        self.project_directory = path
+        print(self.project_directory)
+        self.project_path_label.configure(text=f"Current project: {self.project_directory}")
 
-    def count_project(self):
+    def count_project(self) -> None:
         if self.project_directory in [None, ""]:
             return 0
         allowed_extensions = self.checkbox_frame.get()
@@ -78,16 +79,20 @@ class App(ctk.CTk):
         self.line_count_label.configure(text=f"Line count: {total_lines}")
 
     def count_directory(self, path: str, allowed_extensions: list[str]) -> int:
-        directory_total = 0
+        directory_total: int = 0
+
         for file in os.listdir(path=path):
             if file.startswith("."):
                 continue
+
             if os.path.isfile(os.path.join(path, file)):
                 if file.split(".")[-1] not in allowed_extensions:
                     continue
                 directory_total += self.getFileLineCount(os.path.join(path, file))
+
             elif os.path.isdir(os.path.join(path, file)):
                 directory_total += self.count_directory(os.path.join(path, file), allowed_extensions)
+                
         return directory_total
 
 
